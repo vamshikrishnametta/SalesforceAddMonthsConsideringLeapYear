@@ -1,0 +1,38 @@
+public class dateCalUtility{
+    /**
+	 * Adds a specified number of months to a given date, accounting for leap years.
+	 *
+	 * @param startDate The starting date.
+	 * @param monthsToAdd The number of months to add (can be positive or negative).
+	 * @return The resulting date after adding the months.  Returns null if startDate is null.
+	 * @throws IllegalArgumentException if monthsToAdd would result in an invalid date (e.g., Feb 30).
+	 */
+	public static Date addMonthsConsideringLeapYear(Date startDate, Integer monthsToAdd) {
+		if (startDate == null) {
+			return null;
+		}
+		if (monthsToAdd == null) {
+			return startDate; // Or throw an exception, depending on desired behavior.
+		}
+		Integer startYear = startDate.year();
+		Integer startMonth = startDate.month();
+		Integer startDay = startDate.day();
+		Integer targetMonth = startMonth + monthsToAdd;
+		// Calculate the target year by adding the quotient of (targetMonth - 1) divided by 12 to the start year.
+		Integer targetYear = startYear + (targetMonth - 1) / 12;  // Integer division handles negative months correctly.
+		targetMonth = Math.mod((targetMonth - 1), 12) + 1; // Modulo to wrap around to correct month (1-12).  Handles negative months.
+		if (targetMonth < 1) {
+			targetMonth = targetMonth + 12; // if the month becomes negative, add 12 to it.
+			targetYear = targetYear -1; // if the month becomes negative, subtract 1 from the year.
+		}
+		Integer targetDay = startDay;
+		// Adjust day if necessary (handle end of month and leap years)
+		Integer daysInTargetMonth = Date.daysInMonth(targetYear, targetMonth);
+		targetDay = Math.min(targetDay, daysInTargetMonth); // Prevents invalid dates like Feb 30.
+		try {
+			return Date.newInstance(targetYear, targetMonth, targetDay);
+		} catch (System.IllegalArgumentException e) { // Important for handling edge cases!
+			throw new IllegalArgumentException('Invalid date after month addition: ' + e.getMessage());
+		}
+	}
+}
